@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'war' // ✅ 외부 톰캣 배포용 WAR 패키징
+}
+
+group = 'com.main'
+version = '0.0.1-SNAPSHOT'
+description = 'ioteacher'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // ✅ Spring Boot 핵심 스타터
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // ✅ Hibernate JSON 타입 매핑
+    implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
+    // ✅ JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // ✅ MariaDB (10.1.x 호환 안정버전)
+    implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.10'
+
+    // ✅ Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // ✅ 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // ✅ 내장 톰캣 제외 (외부 톰캣 사용)
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+}
+
+// ✅ 테스트 플랫폼 지정
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// ✅ 리소스 중복 허용
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+// ✅ WAR 패키징 설정 (카페24 전용)
+bootWar {
+    archiveFileName = 'ROOT.war'   // 기본 루트 컨텍스트
+    dependsOn processResources
+    classpath configurations.runtimeClasspath
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    entryCompression = ZipEntryCompression.DEFLATED
+
+    // ✅ 불필요한 메타데이터 제거로 용량 절감
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/LICENSE*', 'META-INF/NOTICE*')
+}

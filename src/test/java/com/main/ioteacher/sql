@@ -1,0 +1,51 @@
+-- 1) 시퀀스 (MariaDB 10.3+)
+CREATE SEQUENCE user_seq
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 20;
+
+-- 2) 유저 테이블
+CREATE TABLE users (
+    seq BIGINT NOT NULL DEFAULT (NEXT VALUE FOR user_seq),  -- 별도 시퀀스 컬럼(정렬/노출용)
+    user_id VARCHAR(32) NOT NULL,                    -- 사람이 정하는 ID(영문/숫자/특수 일부)
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,                  -- 해시 저장
+    name VARCHAR(50) NOT NULL,
+    role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    is_blacklisted VARCHAR(1) NOT NULL DEFAULT 'N',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    last_login DATETIME NULL,
+    CONSTRAINT pk_users PRIMARY KEY (user_id),
+    CONSTRAINT uq_users_email UNIQUE (email),
+    CONSTRAINT uq_users_seq UNIQUE (seq),
+    -- 영문/숫자/_만 허용(필요에 맞게 패턴 조정 가능)
+    CONSTRAINT chk_user_id_format CHECK (user_id REGEXP '^[A-Za-z0-9_]+$')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 3) 예시
+INSERT INTO users (user_id, email, password, name, role)
+VALUES ('noah_kim', 'admin@ioteacher.com', '1234', '관리자', 'ADMIN');
+
+INSERT INTO users (user_id, email, password, name)
+VALUES ('student01', 'user1@test.com', '1234', '홍길동');
+
+SELECT * FROM users;
+
+
+
+
+-- DB 생성(없다면)
+CREATE DATABASE ioteacher DEFAULT CHARACTER SET utf8mb4;
+USE ioteacher;
+
+-- refresh_tokens: (확장 여지, 필요 시 사용)
+CREATE TABLE refresh_tokens (
+  user_id VARCHAR(32) PRIMARY KEY NOT NULL,
+  token VARCHAR(500) NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);

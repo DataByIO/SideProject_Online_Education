@@ -13,6 +13,6 @@ public class IoteacherApplication extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(IoteacherApplication.class, args );
+        SpringApplication.run(IoteacherApplication.class, args);
     }
 }

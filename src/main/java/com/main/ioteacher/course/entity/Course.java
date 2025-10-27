@@ -20,7 +20,9 @@ public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "course_id") // ✅ FK 매핑 명시적으로 지정
     private Long courseId;
+
 
     @Column(nullable = false, length = 20)
     private String type; // online / offline

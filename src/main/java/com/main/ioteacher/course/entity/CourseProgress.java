@@ -28,12 +28,12 @@ public class CourseProgress {
     private Course course;
 
     /** ✅ 현재까지 시청 시간(초) */
-    @Column(name = "watched_sec", nullable = false)
-    private int watchedSec;
+    @Column(name = "watched_seconds", nullable = false)
+    private int watchedSeconds;
 
     /** ✅ 총 강의 길이(초) */
-    @Column(name = "duration_sec", nullable = false)
-    private int durationSec;
+    @Column(name = "duration_seconds", nullable = false)
+    private int durationSeconds;
 
     /** ✅ 완강 여부 */
     @Column(name = "completed", nullable = false)

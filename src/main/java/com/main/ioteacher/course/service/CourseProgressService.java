@@ -32,13 +32,13 @@ public class CourseProgressService {
                 .orElse(CourseProgress.builder()
                         .user(user)
                         .course(course)
-                        .watchedSec(0)
-                        .durationSec(0)
+                        .watchedSeconds(0)
+                        .durationSeconds(0)
                         .completed(false)
                         .build());
 
-        progress.setWatchedSec(Math.max(watchedSec, progress.getWatchedSec()));
-        progress.setDurationSec(durationSec);
+        progress.setWatchedSeconds(Math.max(watchedSec, progress.getWatchedSeconds()));
+        progress.setDurationSeconds(durationSec);
         progress.setCompleted(completed);
         progress.setUpdatedAt(LocalDateTime.now());
 

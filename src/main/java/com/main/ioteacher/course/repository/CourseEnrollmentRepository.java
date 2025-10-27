@@ -5,33 +5,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long> {
 
-    /**
-     * ✅ 수강 승인 여부 확인
-     *
-     */
-    boolean existsByUserIdAndCourseIdAndStatus(String userId, Long courseId, String status);
+    /** ✅ 특정 유저의 전체 수강내역 (마이페이지용) */
+    List<CourseEnrollment> findByUserId(String userId);
 
-    /**
-     * ✅ 특정 유저 + 강의 조합으로 수강신청 조회
-     * (없을 경우 Optional.empty() 반환)
-     */
+    /** ✅ 특정 유저 + 강의 조합으로 수강신청 조회 */
     Optional<CourseEnrollment> findByUserIdAndCourseId(String userId, Long courseId);
 
-    /**
-     * ✅ 특정 유저가 이미 해당 강의를 신청했는지 여부
-     * (중복 방지용)
-     */
+    /** ✅ 해당 유저가 특정 강의에 이미 신청했는지 여부 */
     boolean existsByUserIdAndCourseId(String userId, Long courseId);
 
-    /**
-     * ✅ 리뷰 등록 시: 해당 유저가 승인된 상태로 수강 중인지 여부 확인
-     * (APPROVED 상태만 true)
-     */
+    /** ✅ 특정 강의에 승인 상태로 등록된지 여부 (리뷰 가능 여부 체크용) */
     @Query("""
         SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END
         FROM CourseEnrollment e
@@ -40,4 +29,7 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
           AND e.status = 'APPROVED'
     """)
     boolean isApprovedEnrolled(String userId, Long courseId);
+
+    /** ✅ 특정 유저가 해당 강의를 ‘승인된 상태’로 수강 중인지 여부 */
+    boolean existsByUserIdAndCourseIdAndStatus(String userId, Long courseId, String status);
 }

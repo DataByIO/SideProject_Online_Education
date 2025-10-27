@@ -28,8 +28,8 @@ public class CourseProgressController {
         progressService.updateProgress(
                 getUserId(),
                 courseId,
-                request.getWatchedSec(),
-                request.getDurationSec(),
+                request.getWatchedSeconds(),
+                request.getDurationSeconds(),
                 request.isCompleted()
         );
         return ResponseEntity.ok("Progress updated successfully");
@@ -45,8 +45,8 @@ public class CourseProgressController {
     /** ✅ 내부 요청 DTO */
     @lombok.Data
     public static class ProgressRequest {
-        private int watchedSec;
-        private int durationSec;
+        private int watchedSeconds;
+        private int durationSeconds;
         private boolean completed;
     }
 }

@@ -11,10 +11,15 @@ import java.time.LocalDate;
 @Repository
 public interface CommunityReportRepository extends JpaRepository<CommunityReport, Long> {
 
-    /** ✅ 중복 신고 방지용 */
-    boolean existsByReporterUserIdAndTargetTypeAndTargetId(String reporterId, String targetType, Long targetId);
+    /** ✅ 중복 신고 방지 (User 관계 기반 + Enum 매핑) */
+    boolean existsByReporter_UserIdAndTargetTypeAndTargetId(
+            String reporterId,
+            CommunityReport.TargetType targetType,
+            Long targetId
+    );
 
-    /** ✅ 오늘 신고한 횟수 계산 (LocalDate 사용) */
-    @Query("SELECT COUNT(r) FROM CommunityReport r WHERE r.reporter.userId = :userId AND DATE(r.createdAt) = CURRENT_DATE")
+    /** ✅ 하루 신고 횟수 제한 */
+    @Query("SELECT COUNT(r) FROM CommunityReport r " +
+            "WHERE r.reporter.userId = :userId AND DATE(r.createdAt) = CURRENT_DATE")
     int countTodayReportsByUser(@Param("userId") String userId, LocalDate now);
 }

@@ -1,6 +1,7 @@
 package com.main.ioteacher.community.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.main.ioteacher.common.JsonConverter;
 import com.main.ioteacher.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"post"})  // ✅ post 필드 직렬화 방지
+@JsonIgnoreProperties({"post"}) // ✅ post 직렬화 방지
 public class CommunityComment {
 
     @Id
@@ -32,27 +33,32 @@ public class CommunityComment {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user;
 
-    /** ✅ 내용 */
+    /** ✅ 댓글 내용 */
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    /** ✅ 좋아요 및 신고 카운트 */
     @Column(nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
     private Integer likesCount;
 
     @Column(nullable = false, columnDefinition = "INT UNSIGNED DEFAULT 0")
     private Integer reportCount;
 
-    /** ✅ 신고 사유 */
-    @ElementCollection
-    @CollectionTable(name = "comment_report_reasons", joinColumns = @JoinColumn(name = "comment_id"))
+    /** ✅ 신고 사유(JSON 컬럼으로 저장) */
+    @Convert(converter = JsonConverter.class)
+    @Column(columnDefinition = "JSON", name = "report_reasons")
     private List<Map<String, String>> reportReasons = new ArrayList<>();
 
     /** ✅ 좋아요한 유저 목록 */
     @ElementCollection
-    @CollectionTable(name = "community_comment_liked_users", joinColumns = @JoinColumn(name = "community_comment_comment_id"))
+    @CollectionTable(
+            name = "community_comment_liked_users",
+            joinColumns = @JoinColumn(name = "comment_id")
+    )
     @Column(name = "user_id")
     private Set<String> likedUsers = new HashSet<>();
 
+    /** ✅ 생성 / 수정 시각 */
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

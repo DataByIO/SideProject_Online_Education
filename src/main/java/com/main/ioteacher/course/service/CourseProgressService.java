@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,4 +53,11 @@ public class CourseProgressService {
                 .findByUser_UserIdAndCourse_CourseId(userId, courseId)
                 .orElse(null);
     }
+
+    @Transactional(readOnly = true)
+    public List<CourseProgress> getAllProgress(String userId) {
+        return progressRepository.findByUser_UserId(userId);
+    }
+
+
 }

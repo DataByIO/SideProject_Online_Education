@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
@@ -40,6 +42,14 @@ public class CourseProgressController {
     public ResponseEntity<CourseProgress> getProgress(@PathVariable Long courseId) {
         CourseProgress progress = progressService.getProgress(getUserId(), courseId);
         return ResponseEntity.ok(progress);
+    }
+
+    /** ✅ 모든 강의의 진도율 조회 (마이페이지용) */
+    @GetMapping("/progress/all")
+    public ResponseEntity<List<CourseProgress>> getAllProgress() {
+        String userId = getUserId();
+        List<CourseProgress> allProgress = progressService.getAllProgress(userId);
+        return ResponseEntity.ok(allProgress);
     }
 
     /** ✅ 내부 요청 DTO */

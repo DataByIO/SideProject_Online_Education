@@ -42,4 +42,8 @@ public class CourseProgress {
     /** ✅ 최종 갱신 시각 */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    /** ✅ 진도율 계산값 */
+    @Column(name = "progress_rate", insertable = false, updatable = false)
+    private Double progressRate;
 }

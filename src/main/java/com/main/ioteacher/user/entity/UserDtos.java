@@ -1,4 +1,4 @@
-package com.main.ioteacher.user.dto;
+package com.main.ioteacher.user.entity;
 
 import com.main.ioteacher.user.UserStatus;
 import jakarta.validation.constraints.Email;

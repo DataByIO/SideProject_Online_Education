@@ -1,8 +1,8 @@
 package com.main.ioteacher.user.service;
 
 import com.main.ioteacher.user.UserStatus;
-import com.main.ioteacher.user.dto.UserDtos.Resp;
-import com.main.ioteacher.user.dto.UserDtos.UserResp;
+import com.main.ioteacher.user.entity.UserDtos.Resp;
+import com.main.ioteacher.user.entity.UserDtos.UserResp;
 import com.main.ioteacher.user.entity.User;
 import com.main.ioteacher.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

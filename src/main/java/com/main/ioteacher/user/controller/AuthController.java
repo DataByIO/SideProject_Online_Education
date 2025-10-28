@@ -1,9 +1,9 @@
 package com.main.ioteacher.user.controller;
 
-import com.main.ioteacher.user.dto.UserDtos.CreateReq;
-import com.main.ioteacher.user.dto.UserDtos.LoginRequest;
-import com.main.ioteacher.user.dto.UserDtos.Resp;
-import com.main.ioteacher.user.dto.UserDtos.TokenResponse;
+import com.main.ioteacher.user.entity.UserDtos.CreateReq;
+import com.main.ioteacher.user.entity.UserDtos.LoginRequest;
+import com.main.ioteacher.user.entity.UserDtos.Resp;
+import com.main.ioteacher.user.entity.UserDtos.TokenResponse;
 import com.main.ioteacher.user.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

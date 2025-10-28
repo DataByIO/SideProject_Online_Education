@@ -1,8 +1,8 @@
 package com.main.ioteacher.user.controller;
 
 import com.main.ioteacher.user.UserStatus;
-import com.main.ioteacher.user.dto.UserDtos.Resp;
-import com.main.ioteacher.user.dto.UserDtos.UserResp;
+import com.main.ioteacher.user.entity.UserDtos.Resp;
+import com.main.ioteacher.user.entity.UserDtos.UserResp;
 import com.main.ioteacher.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

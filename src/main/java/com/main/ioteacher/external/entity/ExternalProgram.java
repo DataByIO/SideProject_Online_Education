@@ -34,7 +34,9 @@ public class ExternalProgram {
     @Column(columnDefinition = "json")
     private Map<String, String> subtitle;
 
-    private String recruitmentPeriod;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+
     private String recruitmentCapacity;
 
     @Enumerated(EnumType.STRING)
@@ -54,7 +56,7 @@ public class ExternalProgram {
     private String resultNotice;
     private String contact;
     private String educationPeriod;
-    private String mainImageUrl;
+    private String imageUrl;
 
     /** ✅ 교육장 정보 예: { "ko": "서울특별시 강남구", "en": "Gangnam, Seoul" } */
     @JdbcTypeCode(SqlTypes.JSON)

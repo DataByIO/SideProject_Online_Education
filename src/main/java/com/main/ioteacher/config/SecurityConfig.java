@@ -29,55 +29,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ JWT 기반이므로 CSRF, 세션 비활성화
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 프론트엔드 라우트 & 정적 리소스 허용
                         .requestMatchers(
                                 "/", "/index.html", "/login", "/register",
                                 "/assets/**", "/static/**",
                                 "/favicon.ico", "/uploads/**", "/api/uploads/**"
                         ).permitAll()
 
-                        // ✅ 공개 API 허용
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/users/login",
                                 "/api/users/register",
-                                "/api/courses/**",
                                 "/api/reviews/**",
                                 "/api/external-programs",
-                                "/api/external-programs/*"
+                                "/api/external-programs/**"
                         ).permitAll()
 
-                        // ✅ 외부교육 신청은 인증 필요
-                        .requestMatchers(HttpMethod.POST, "/api/external-programs/applications/**").authenticated()
+                        // ✅ 강의 관련 API는 로그인 필요
+                        .requestMatchers("/api/courses/**").authenticated()
 
-                        // ✅ 리뷰 작성/수정/삭제는 로그인 필요
-                        .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
-
-                        // ✅ 영상 스트리밍은 반드시 인증 필요
+                        // ✅ 영상 스트리밍도 로그인 필요
                         .requestMatchers(HttpMethod.GET, "/api/video/stream/**").authenticated()
 
                         // ✅ 관리자 전용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // ✅ OPTIONS 요청은 허용 (CORS preflight)
+                        // ✅ OPTIONS (CORS preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ✅ 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
 
-                // ✅ JWT 필터 등록
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // ✅ 예외 응답을 JSON 형식으로 통일
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) -> {
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -91,21 +79,19 @@ public class SecurityConfig {
                         })
                 )
 
-                .requestCache(requestCache -> requestCache.disable())
-                .securityContext(ctx -> ctx.requireExplicitSave(false))
                 .formLogin(form -> form.disable())
                 .logout(logout -> logout.disable());
 
         return http.build();
     }
 
-    /** ✅ CORS 설정 (Vue 개발/운영 서버 모두 허용 가능) */
+    /** ✅ CORS 설정 */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration c = new CorsConfiguration();
         c.setAllowedOrigins(List.of(
-                "http://localhost:5173",     // 개발 환경
-                "https://ioteacher.com",     // 운영 도메인
+                "http://localhost:5173",
+                "https://ioteacher.com",
                 "http://ioteacher.com"
         ));
         c.setAllowCredentials(true);

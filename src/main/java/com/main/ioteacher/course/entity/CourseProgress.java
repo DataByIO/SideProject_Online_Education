@@ -43,6 +43,10 @@ public class CourseProgress {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /** ✅ 마지막 시청시간 */
+    @Column(name = "last_watched_at")
+    private LocalDateTime lastWatchedAt;
+
     /** ✅ 진도율 계산값 */
     @Column(name = "progress_rate", insertable = false, updatable = false)
     private Double progressRate;

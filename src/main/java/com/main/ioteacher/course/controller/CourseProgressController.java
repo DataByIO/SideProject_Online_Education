@@ -1,6 +1,7 @@
 package com.main.ioteacher.course.controller;
 
 import com.main.ioteacher.course.entity.CourseProgress;
+import com.main.ioteacher.course.entity.CourseProgressResponse;
 import com.main.ioteacher.course.service.CourseProgressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,13 +45,13 @@ public class CourseProgressController {
         return ResponseEntity.ok(progress);
     }
 
-    /** ✅ 모든 강의의 진도율 조회 (마이페이지용) */
+    /** ✅ 모든 강의의 진도율 조회 */
     @GetMapping("/progress/all")
-    public ResponseEntity<List<CourseProgress>> getAllProgress() {
+    public ResponseEntity<List<CourseProgressResponse>> getAllProgress() {
         String userId = getUserId();
-        List<CourseProgress> allProgress = progressService.getAllProgress(userId);
-        return ResponseEntity.ok(allProgress);
+        return ResponseEntity.ok(progressService.getAllProgress(userId)); // ✅ 깔끔하게 수정
     }
+
 
     /** ✅ 내부 요청 DTO */
     @lombok.Data

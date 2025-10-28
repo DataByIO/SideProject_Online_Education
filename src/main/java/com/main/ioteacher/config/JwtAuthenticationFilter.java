@@ -33,26 +33,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String method = request.getMethod();
         final String path = request.getRequestURI();
 
-        // ✅ 1. 정적 리소스 및 프론트 라우트는 완전 스킵
+        // ✅ 정적 리소스 스킵
         if (isStaticOrMainResource(path)) {
-            log.debug("[JWT] Skip static or main resource: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 2. OPTIONS 요청 무시 (CORS preflight)
+        // ✅ OPTIONS 스킵 (CORS preflight)
         if ("OPTIONS".equalsIgnoreCase(method)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 3. 공개 엔드포인트 (API + 프론트 라우트) 스킵
+        // ✅ 공개 엔드포인트 스킵 (로그인/회원가입 등)
         if (isPublicEndpoint(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 4. Authorization 헤더 또는 파라미터에서 토큰 추출
+        // ✅ Authorization 헤더 확인
         String token = null;
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -67,13 +66,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ 5. 토큰 검증
-        String username;
+        // ✅ 토큰 검증
         try {
-            username = jwtUtil.extractUsername(token);
+            String username = jwtUtil.extractUsername(token);
             if (username == null || !jwtUtil.validateToken(token)) {
                 unauthorized(response, "토큰이 만료되었거나 유효하지 않습니다.");
                 return;
+            }
+
+            // ✅ SecurityContext 등록
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                var authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                log.debug("[JWT] 인증 완료: {}", username);
             }
         } catch (Exception e) {
             log.warn("[JWT] 토큰 파싱 오류: {}", e.getMessage());
@@ -81,46 +89,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ 6. SecurityContext에 인증 정보 설정
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-            log.debug("[JWT] 인증 완료: {}", username);
-        }
-
         filterChain.doFilter(request, response);
     }
 
-    /** ✅ 메인화면, 로그인/회원가입, 정적 자원 모두 인증 제외 */
     private boolean isStaticOrMainResource(String path) {
-        return path.equals("/")
-                || path.equals("/index.html")
-                || path.equals("/login")           // ✅ Vue 로그인 화면
-                || path.equals("/register")        // ✅ Vue 회원가입 화면
-                || path.startsWith("/assets/")
-                || path.startsWith("/static/")
-                || path.startsWith("/uploads/")
-                || path.startsWith("/api/uploads/")
-                || path.startsWith("/favicon.ico");
+        return path.equals("/") || path.equals("/index.html") ||
+                path.equals("/login") || path.equals("/register") ||
+                path.startsWith("/assets/") || path.startsWith("/static/") ||
+                path.startsWith("/uploads/") || path.startsWith("/api/uploads/") ||
+                path.equals("/favicon.ico");
     }
 
-    /** ✅ 백엔드 API 중 공개 엔드포인트 */
+    /** ✅ 로그인하지 않아도 접근 가능한 API */
     private boolean isPublicEndpoint(HttpServletRequest request) {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        return (path.startsWith("/api/courses") && method.equals("GET"))
-                || (path.startsWith("/api/reviews") && method.equals("GET"))
-                || (path.startsWith("/api/external-programs") && method.equals("GET"))
-                || path.startsWith("/api/users/login")
-                || path.startsWith("/api/users/register")
-                || path.startsWith("/api/auth");
+        return
+                (path.startsWith("/api/reviews") && method.equals("GET")) ||
+                        (path.startsWith("/api/external-programs") && method.equals("GET")) ||
+                        path.startsWith("/api/users/login") ||
+                        path.startsWith("/api/users/register") ||
+                        path.startsWith("/api/auth");
     }
 
-    /** ✅ 401 Unauthorized 응답 처리 */
     private void unauthorized(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");

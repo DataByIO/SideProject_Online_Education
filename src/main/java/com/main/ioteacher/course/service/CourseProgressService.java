@@ -1,6 +1,7 @@
 package com.main.ioteacher.course.service;
 
 import com.main.ioteacher.course.entity.CourseProgress;
+import com.main.ioteacher.course.entity.CourseProgressResponse;
 import com.main.ioteacher.course.repository.CourseProgressRepository;
 import com.main.ioteacher.user.entity.User;
 import com.main.ioteacher.user.repository.UserRepository;
@@ -41,6 +42,7 @@ public class CourseProgressService {
         progress.setWatchedSeconds(Math.max(watchedSec, progress.getWatchedSeconds()));
         progress.setDurationSeconds(durationSec);
         progress.setCompleted(completed);
+        progress.setWatchedSeconds(Math.min(progress.getWatchedSeconds(), progress.getDurationSeconds()));
         progress.setUpdatedAt(LocalDateTime.now());
 
         progressRepository.save(progress);
@@ -55,9 +57,13 @@ public class CourseProgressService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseProgress> getAllProgress(String userId) {
-        return progressRepository.findByUser_UserId(userId);
+    public List<CourseProgressResponse> getAllProgress(String userId) {
+        List<CourseProgress> progresses = progressRepository.findByUser_UserId(userId);
+        return progresses.stream()
+                .map(progress -> new CourseProgressResponse(progress))
+                .toList();
     }
+
 
 
 }

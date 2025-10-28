@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,8 @@ public class ExternalProgramResponse {
     private String category;
     private String title;
     private String subtitle;
-    private String recruitmentPeriod;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String recruitmentCapacity;
     private String status;
     private String recruitmentTarget;
@@ -23,7 +25,7 @@ public class ExternalProgramResponse {
     private String selectionCriteria;
     private String resultNotice;
     private String contact;
-    private String mainImageUrl;
+    private String imageUrl;
     private String educationPeriod;
     private String educationLocation;
     private String completionCriteria;
@@ -41,10 +43,11 @@ public class ExternalProgramResponse {
         return ExternalProgramResponse.builder()
                 .programId(p.getProgramId())
                 .category(p.getCategory())
-                .mainImageUrl(p.getMainImageUrl())
+                .imageUrl(p.getImageUrl())
                 .title(extract(p.getTitle(), lang))
                 .subtitle(extract(p.getSubtitle(), lang))
-                .recruitmentPeriod(p.getRecruitmentPeriod())
+                .startDate(p.getStartDate())
+                .endDate(p.getEndDate())
                 .recruitmentCapacity(p.getRecruitmentCapacity())
                 .status(p.getStatus() != null ? p.getStatus().name().toLowerCase() : "upcoming")
                 .recruitmentTarget(extract(p.getRecruitmentTarget(), lang))

@@ -22,14 +22,14 @@ public class CourseResponse {
     private String instructorBio;
     private String instructorBio2;
     private String language;
-    private String status; // ✅ Enum → String
+    private String status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime updatedAt;
     private Integer priceKrw;
     private Double ratingAvg;
     private Integer durationMinutes;
-    private String videoUrl;
+    private String videoUrl; // ✅ 단일 URL로 반환
     private String imageUrl;
     private Integer totalStudents;
     private Boolean certificate;
@@ -54,12 +54,11 @@ public class CourseResponse {
                 .instructorBio(extract(c.getInstructorBio(), lang))
                 .instructorBio2(extract(c.getInstructorBio2(), lang))
                 .language(extract(c.getLanguage(), lang))
-                // ✅ Enum을 문자열로 변환
                 .status(c.getStatus() != null ? c.getStatus().name().toLowerCase() : "upcoming")
                 .priceKrw(c.getPriceKrw())
                 .ratingAvg(c.getRatingAvg())
                 .durationMinutes(c.getDurationMinutes())
-                .videoUrl(c.getVideoUrl())
+                .videoUrl(extractVideo(c, lang)) // ✅ 다국어 영상 선택
                 .imageUrl(c.getImageUrl())
                 .totalStudents(c.getTotalStudents())
                 .certificate(c.getCertificate())
@@ -81,5 +80,12 @@ public class CourseResponse {
         List<String> value = json.get(lang);
         if (value == null) value = json.get("ko");
         return value;
+    }
+
+    /** ✅ 온라인 강의 비디오 URL 다국어 처리 */
+    private static String extractVideo(Course c, String lang) {
+        if (!"online".equals(c.getType())) return c.getVideoUrl() != null ? c.getVideoUrl().get("ko") : null;
+        if (c.getVideoUrl() == null) return null;
+        return c.getVideoUrl().getOrDefault(lang, c.getVideoUrl().get("ko"));
     }
 }

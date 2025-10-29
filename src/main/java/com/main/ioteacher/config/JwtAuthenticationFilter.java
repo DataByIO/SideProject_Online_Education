@@ -94,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isStaticOrMainResource(String path) {
         return path.equals("/") || path.equals("/index.html") ||
-                path.equals("/login") || path.equals("/register") ||
+                path.equals("/login") || path.equals("/register") || path.equals("/feed") ||  // ✅ feed 추가
                 path.startsWith("/assets/") || path.startsWith("/static/") ||
                 path.startsWith("/uploads/") || path.startsWith("/api/uploads/") ||
                 path.equals("/favicon.ico");
@@ -106,11 +106,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         return
-                (path.startsWith("/api/reviews") && method.equals("GET")) ||
+                // Auth 관련
+                path.startsWith("/api/auth/register") ||
+                        path.startsWith("/api/auth/login") ||
+                        path.startsWith("/api/auth/send-verification") ||
+                        path.startsWith("/api/auth/send-reset-verification") ||
+                        path.startsWith("/api/auth/verify-reset-code") ||
+                        path.startsWith("/api/auth/reset-password") ||
+                        path.startsWith("/api/auth/verify-code") ||
+                        path.startsWith("/api/auth/refresh") ||
+
+                        // User 관련
+                        path.startsWith("/api/users/check-duplicate") ||
+
+                        // 강의/외부교육 목록은 GET만 허용
+                        (path.startsWith("/api/courses") && method.equals("GET")) ||
                         (path.startsWith("/api/external-programs") && method.equals("GET")) ||
-                        path.startsWith("/api/users/login") ||
-                        path.startsWith("/api/users/register") ||
-                        path.startsWith("/api/auth");
+
+                        // ✅ 커뮤니티 조회용(GET)은 허용
+                        (path.startsWith("/api/community") && method.equals("GET")) ||
+
+                        // ✅ 정적 리소스 및 공개 페이지
+                        path.equals("/") ||
+                        path.equals("/index.html") ||
+                        path.equals("/login") ||
+                        path.equals("/register") ||
+                        path.equals("/feed") || // ✅ feed 추가
+                        path.startsWith("/uploads/") ||
+                        path.startsWith("/assets/") ||
+                        path.startsWith("/static/") ||
+                        path.equals("/favicon.ico");
     }
 
     private void unauthorized(HttpServletResponse response, String message) throws IOException {

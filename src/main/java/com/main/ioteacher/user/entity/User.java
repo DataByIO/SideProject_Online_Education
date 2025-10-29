@@ -20,26 +20,24 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonIgnoreProperties({"password", "reviews", "comments", "posts"})
-//(Entity) → DB 테이블과 직접 매핑, 내부 시스템에서 사용
 public class User {
 
-    // ✅ PK는 문자열 userId
     @Id
     @Column(name = "user_id", nullable = false, unique = true, length = 100)
     private String userId;
 
     @Column(nullable = false, unique = true, length = 255)
-    private String email;    // 로그인용 이메일
+    private String email;
 
     @Column(nullable = false)
-    private String password; // 암호화된 비밀번호
+    private String password;
 
     @Column(nullable = false, length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role;   // ✅ com.main.ioteacher.user.Role
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -53,20 +51,36 @@ public class User {
     private LocalDateTime lastLogin;
 
     @Column(name = "refresh_token", length = 512)
-    private String refreshToken; // JWT Refresh Token
+    private String refreshToken;
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private List<CourseReview> reviews;
-
-
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "address", length = 20)
-    private String address;
+    /** ✅ 주소 관련 필드 세분화 */
+    @Column(name = "road_address", length = 255)
+    private String roadAddress;
 
+    @Column(name = "detail_address", length = 255)
+    private String detailAddress;
+
+    @Column(name = "zip_code", length = 10)
+    private String zipCode;
+
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
+
+    @Column(name = "agree_marketing")
+    private Boolean agreeMarketing = false;
+
+    @ElementCollection
+    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "interest")
+    private List<String> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<CourseReview> reviews;
 }

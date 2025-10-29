@@ -32,7 +32,10 @@ public class VideoStreamController {
 
 
     @GetMapping("/stream/{courseId}")
-    public ResponseEntity<?> stream(@PathVariable Long courseId) {
+    public ResponseEntity<?> stream(
+            @PathVariable Long courseId,
+            @RequestParam(defaultValue = "ko") String lang // ✅ 사용자 언어 파라미터
+    ) {
         // 1️⃣ 인증 사용자 확인
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -41,7 +44,7 @@ public class VideoStreamController {
                     .body("{\"error\":\"인증이 필요합니다.\"}");
         }
 
-        String userId = auth.getName(); // JwtAuthenticationFilter 에서 설정된 username(userId)
+        String userId = auth.getName();
         log.debug("[VideoStream] 요청 사용자 ID: {}", userId);
 
         // 2️⃣ 수강 승인 여부 확인
@@ -60,11 +63,19 @@ public class VideoStreamController {
                     .body("{\"error\":\"강의를 찾을 수 없습니다.\"}");
         }
 
-        String videoUrl = course.getVideoUrl();
+        // ✅ 언어별 비디오 URL 꺼내기
+        String videoUrl = null;
+        if (course.getVideoUrl() != null && course.getVideoUrl().containsKey(lang)) {
+            videoUrl = course.getVideoUrl().get(lang);
+        } else if (course.getVideoUrl() != null && course.getVideoUrl().containsKey("ko")) {
+            // 기본값으로 한국어 영상 사용
+            videoUrl = course.getVideoUrl().get("ko");
+        }
+
         if (!StringUtils.hasText(videoUrl)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body("{\"error\":\"강의 영상이 등록되어 있지 않습니다.\"}");
+                    .body("{\"error\":\"해당 언어의 강의 영상이 등록되어 있지 않습니다.\"}");
         }
 
         String filename = Paths.get(videoUrl).getFileName().toString();
@@ -82,10 +93,8 @@ public class VideoStreamController {
         MediaType mediaType = MediaTypeFactory.getMediaType(filename)
                 .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-        log.info("[VideoStream] 사용자 '{}' 에게 영상 '{}' 스트리밍 시작", userId, file.getName());
-        log.info("[VideoStream] 요청된 파일 경로: {}", course.getVideoUrl());
-        log.info("[VideoStream] 파일 존재 여부: {}", Files.exists(Paths.get(course.getVideoUrl())));
-
+        log.info("[VideoStream] 사용자 '{}' 에게 '{}' 언어 영상 '{}' 스트리밍 시작", userId, lang, file.getName());
+        log.info("[VideoStream] 요청된 파일 경로: {}", videoUrl);
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
@@ -94,4 +103,5 @@ public class VideoStreamController {
                 .contentLength(file.length())
                 .body(resource);
     }
+
 }

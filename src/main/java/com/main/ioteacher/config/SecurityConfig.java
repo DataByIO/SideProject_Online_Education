@@ -34,38 +34,49 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/index.html", "/login", "/register",
+                        // ✅ 정적 리소스 및 공개 페이지
+                        .requestMatchers("/", "/index.html", "/login", "/register", "/feed",  // ← feed 추가
                                 "/assets/**", "/static/**",
-                                "/favicon.ico", "/uploads/**", "/api/uploads/**"
-                        ).permitAll()
+                                "/favicon.ico", "/uploads/**", "/api/uploads/**")
+                        .permitAll()
 
+                        // ✅ 공개 API
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/users/login",
-                                "/api/users/register",
-                                "/api/reviews/**",
-                                "/api/external-programs",
-                                "/api/external-programs/**"
+                                "/api/users/check-duplicate",
+                                "/api/external-programs/**",
+                                "/api/courses/**"
                         ).permitAll()
 
-                        // ✅ 강의 관련 API는 로그인 필요
-                        .requestMatchers("/api/courses/**").authenticated()
+                        // ✅ 커뮤니티 조회 관련은 공개
+                        .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
 
-                        // ✅ 영상 스트리밍도 로그인 필요
-                        .requestMatchers(HttpMethod.GET, "/api/video/stream/**").authenticated()
+                        // ✅ 커뮤니티 글쓰기/수정/삭제/신고 등은 보호
+                        .requestMatchers(HttpMethod.POST, "/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/community/**").authenticated()
+                        .requestMatchers("/api/community/reports/**").authenticated()
+
+                        // ✅ 사용자 관련 (마이페이지 등 보호)
+                        .requestMatchers("/api/users/me", "/api/users/profile", "/api/users/password").authenticated()
 
                         // ✅ 관리자 전용
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // ✅ OPTIONS (CORS preflight)
+                        // ✅ 영상 스트리밍
+                        .requestMatchers(HttpMethod.GET, "/api/video/stream/**").authenticated()
+
+                        // ✅ OPTIONS (CORS Preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        // ✅ 나머지는 보호
                         .anyRequest().authenticated()
                 )
 
+                // ✅ JWT 필터
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
+                // ✅ 예외 처리
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) -> {
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -96,7 +107,7 @@ public class SecurityConfig {
         ));
         c.setAllowCredentials(true);
         c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        c.setAllowedHeaders(List.of("*"));
+        c.setAllowedHeaders(List.of("Authorization", "Content-Type", "lang", "*"));
         c.setExposedHeaders(List.of("*"));
         c.setMaxAge(3600L);
 

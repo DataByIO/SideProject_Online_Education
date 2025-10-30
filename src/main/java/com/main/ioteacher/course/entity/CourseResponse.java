@@ -1,5 +1,6 @@
 package com.main.ioteacher.course.entity;
 
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
 
@@ -33,6 +34,7 @@ public class CourseResponse {
     private String imageUrl;
     private Integer totalStudents;
     private Boolean certificate;
+    private Integer viewsCount;
     private List<String> learningGoals;
     private List<String> targetAudience;
     private List<String> curriculum;
@@ -44,6 +46,7 @@ public class CourseResponse {
                 .type(c.getType())
                 .startDate(c.getStartDate())
                 .endDate(c.getEndDate())
+                .viewsCount(c.getViewsCount())
                 .updatedAt(c.getUpdatedAt())
                 .title(extract(c.getTitle(), lang))
                 .category(extract(c.getCategory(), lang))

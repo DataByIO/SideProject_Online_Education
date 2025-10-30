@@ -81,6 +81,6 @@ public class CommunityPost {
     }
 
     public enum Category {
-        general, question, study, job
+        notice, general, question, study, job
     }
 }

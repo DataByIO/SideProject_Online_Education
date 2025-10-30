@@ -68,6 +68,9 @@ public class Course {
     @Type(JsonType.class) @Column(columnDefinition = "json")
     private Map<String, List<String>> curriculum;
 
+    @Column(name = "views_count", nullable = false)
+    private Integer viewsCount = 0;
+
     private Integer priceKrw;
     private Double ratingAvg;
     private Integer durationMinutes;

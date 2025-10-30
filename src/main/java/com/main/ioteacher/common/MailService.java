@@ -114,4 +114,27 @@ public class MailService {
             throw new RuntimeException("비밀번호 변경 알림 메일 발송 실패", e);
         }
     }
+
+    /** ✅ 문의 폼 메일 발송 */
+    public void sendContactMail(String name, String email, String subject, String message) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+        helper.setTo("ro_bot__@naver.com"); // 수신자 (관리자)
+        helper.setFrom("ro_bot__@naver.com");
+        helper.setSubject("[IOTeacher 문의] " + subject);
+
+        String body = String.format("""
+            📩 새로운 문의가 접수되었습니다.
+
+            👤 이름: %s
+            📧 이메일: %s
+
+            💬 메시지:
+            %s
+            """, name, email, message);
+
+        helper.setText(body, false);
+        mailSender.send(mimeMessage);
+    }
 }

@@ -1,6 +1,5 @@
 package com.main.ioteacher.community.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.main.ioteacher.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -58,11 +57,22 @@ public class CommunityPost {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    /** ✅ 좋아요 누른 사용자 목록 (userId 문자열만 저장) */
-    @ElementCollection
-    @CollectionTable(name = "community_post_liked_users", joinColumns = @JoinColumn(name = "community_post_post_id"))
+    /** ✅ 좋아요 누른 사용자 목록 */
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "community_post_liked_users",
+            joinColumns = @JoinColumn(name = "community_post_post_id")
+    )
     @Column(name = "user_id")
     private Set<String> likedUsers = new HashSet<>();
+
+    /** ✅ 엔티티가 DB에서 로드될 때 likedUsers null 방지 */
+    @PostLoad
+    public void postLoad() {
+        if (this.likedUsers == null) {
+            this.likedUsers = new HashSet<>();
+        }
+    }
 
     @PrePersist
     public void prePersist() {
@@ -73,11 +83,13 @@ public class CommunityPost {
         if (viewsCount == null) viewsCount = 0;
         if (reportCount == null) reportCount = 0;
         if (reportReasons == null) reportReasons = "[]";
+        if (likedUsers == null) likedUsers = new HashSet<>();
     }
 
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+        if (likedUsers == null) likedUsers = new HashSet<>();
     }
 
     public enum Category {

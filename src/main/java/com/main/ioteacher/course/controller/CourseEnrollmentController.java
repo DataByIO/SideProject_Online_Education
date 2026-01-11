@@ -1,6 +1,7 @@
 package com.main.ioteacher.course.controller;
 
 import com.main.ioteacher.course.entity.CourseEnrollment;
+import com.main.ioteacher.course.entity.MyApprovedCourseResponse;
 import com.main.ioteacher.course.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +48,7 @@ public class CourseEnrollmentController {
 
     /** ✅ ✅ 기존 `/api/courses/progress/all` 대체 API */
     @GetMapping("/my-approved")
-    public ResponseEntity<List<Map<String, Object>>> getMyApprovedCourses(Principal principal) {
-        List<Map<String, Object>> result = enrollmentService.getApprovedCoursesWithProgress(principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<MyApprovedCourseResponse>> getMyApprovedCourses(Principal principal) {
+        return ResponseEntity.ok(enrollmentService.getApprovedCoursesWithProgress(principal.getName()));
     }
 }

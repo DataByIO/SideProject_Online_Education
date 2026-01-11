@@ -19,7 +19,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
         helper.setTo(to);
-        helper.setFrom("ro_bot__@naver.com");
+        helper.setFrom("osaeknabi2022@naver.com");
         helper.setSubject("[IOTeacher] 새로운 외부교육 신청이 접수되었습니다");
         helper.setText(String.format("""
                 안녕하세요, 관리자님 👋
@@ -46,7 +46,7 @@ public class MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setTo(to);
-            helper.setFrom("ro_bot__@naver.com");
+            helper.setFrom("osaeknabi2022@naver.com");
             helper.setSubject("[IOTeacher] 이메일 인증 코드");
             helper.setText(String.format("""
                     안녕하세요 👋
@@ -71,7 +71,7 @@ public class MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setTo(to);
-            helper.setFrom("ro_bot__@naver.com");
+            helper.setFrom("osaeknabi2022@naver.com");
             helper.setSubject("[IOTeacher] 비밀번호 재설정 인증코드");
             helper.setText(String.format("""
                     안녕하세요 👋
@@ -96,7 +96,7 @@ public class MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setTo(to);
-            helper.setFrom("ro_bot__@naver.com");
+            helper.setFrom("osaeknabi2022@naver.com");
             helper.setSubject("[IOTeacher] 비밀번호 변경 안내");
             helper.setText("""
                     안녕하세요 👋
@@ -120,8 +120,8 @@ public class MailService {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
-        helper.setTo("ro_bot__@naver.com"); // 수신자 (관리자)
-        helper.setFrom("ro_bot__@naver.com");
+        helper.setTo("osaeknabi2022@naver.com"); // 수신자 (관리자)
+        helper.setFrom("osaeknabi2022@naver.com");
         helper.setSubject("[IOTeacher 문의] " + subject);
 
         String body = String.format("""

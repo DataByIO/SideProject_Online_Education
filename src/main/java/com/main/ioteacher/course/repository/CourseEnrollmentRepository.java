@@ -33,8 +33,6 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
     /** ✅ 특정 유저가 해당 강의를 ‘승인된 상태’로 수강 중인지 여부 */
     boolean existsByUserIdAndCourseIdAndStatus(String userId, Long courseId, String status);
-
-    /** ✅ 마이페이지: 승인된 강의 + 진도율 + 기본정보 조회 (courses, course_progress 조인) */
     @Query(value = """
         SELECT
             d.course_id AS courseId,
@@ -53,33 +51,37 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
             d.end_date AS endDate
         FROM course_enrollments c
         LEFT JOIN course_progress e
-            ON e.course_id = c.course_id AND e.user_id = c.user_id
+            ON e.course_id = c.course_id
+            AND e.user_id = c.user_id
         LEFT JOIN courses d
             ON d.course_id = c.course_id
         WHERE c.user_id = :userId
+""", nativeQuery = true)
+    List<Map<String, Object>> findInternalApprovedCourses(String userId);
 
-        UNION ALL
 
-        SELECT
-            ep.program_id AS courseId,
-            er.user_id AS userId,
-            'external' AS type,
-            ep.status AS status,
-            NULL AS lastWatchedAt,
-            NULL AS durationSeconds,
-            NULL AS progressRate,
-            NULL AS certificate,
-            ep.title AS title,
-            ep.subtitle AS description,
-            ep.image_url AS imageUrl,
-            er.updated_at AS updatedAt,
-            ep.start_date AS startDate,
-            ep.end_date AS endDate
-        FROM external_program_applications er
-        LEFT JOIN external_programs ep
-            ON er.program_id = ep.program_id
-        WHERE er.user_id = :userId
-        ORDER BY courseId DESC
-    """, nativeQuery = true)
-    List<Map<String, Object>> findApprovedCoursesWithProgressByUserId(String userId);
+    @Query(value = """
+SELECT
+    ep.program_id AS courseId,
+    er.user_id AS userId,
+    'external' AS type,
+    ep.status AS status,
+    NULL AS lastWatchedAt,
+    NULL AS durationSeconds,
+    NULL AS progressRate,
+    NULL AS certificate,
+    ep.title AS title,
+    ep.subtitle AS description,
+    ep.image_url AS imageUrl,
+    er.updated_at AS updatedAt,
+    ep.start_date AS startDate,
+    ep.end_date AS endDate
+FROM external_program_applications er
+LEFT JOIN external_programs ep
+    ON er.program_id = ep.program_id
+WHERE er.user_id = :userId
+""", nativeQuery = true)
+    List<Map<String, Object>> findExternalApprovedCourses(String userId);
+
+
 }

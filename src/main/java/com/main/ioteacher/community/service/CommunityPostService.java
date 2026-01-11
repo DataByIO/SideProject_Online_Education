@@ -68,22 +68,34 @@ public class CommunityPostService {
     private String saveImageFile(MultipartFile image) {
         if (image == null || image.isEmpty()) return null;
         try {
-            String uploadDir = "/Users/kimnoah/IdeaProjects/ioteacher/uploads/feed/";
+            String uploadDir = "/osaekedu58/tomcat/webapps/file/uploads/feed/";
+
+            // 디렉토리 생성
             Files.createDirectories(Paths.get(uploadDir));
+
+            // 파일명 생성
             String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+
+            // ★ 파일 저장 경로 (슬래시 포함)
             Path path = Paths.get(uploadDir + fileName);
+
+            // 파일 저장
             Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/feed/" + fileName;
+
+            // ★ 웹에서 접근할 수 있는 URL 반환
+            return "/file/uploads/feed/" + fileName;
+
         } catch (IOException e) {
             throw new RuntimeException("이미지 업로드 실패: " + e.getMessage(), e);
         }
     }
 
+
     /** ✅ 기존 이미지 삭제 */
     private void deleteOldImageFile(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) return;
         try {
-            String baseDir = "/Users/kimnoah/IdeaProjects/ioteacher/uploads";
+            String baseDir = "/osaekedu58/tomcat/webapps/file/uploads/feed";
             Path path = Paths.get(baseDir + imageUrl.replace("/uploads", ""));
             if (Files.exists(path)) Files.delete(path);
         } catch (Exception e) {

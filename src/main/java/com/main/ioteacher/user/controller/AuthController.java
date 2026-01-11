@@ -1,5 +1,5 @@
 package com.main.ioteacher.user.controller;
-
+import com.main.ioteacher.user.entity.UserDtos;
 import com.main.ioteacher.user.entity.UserDtos.CreateReq;
 import com.main.ioteacher.user.entity.UserDtos.LoginRequest;
 import com.main.ioteacher.user.entity.UserDtos.Resp;
@@ -79,5 +79,11 @@ public class AuthController {
         String userId = body.get("userId");
         authService.logout(userId, response);
         return new Resp(true, "로그아웃 완료");
+    }
+
+    /** ✅ 아이디(이메일) 찾기: 이름 + 전화번호 */
+    @PostMapping("/find-id")
+    public UserDtos.FindIdResponse findId(@Valid @RequestBody UserDtos.FindIdRequest req) {
+        return authService.findId(req);
     }
 }

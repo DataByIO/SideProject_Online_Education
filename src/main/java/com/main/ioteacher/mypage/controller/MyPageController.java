@@ -14,7 +14,7 @@ public class MyPageController {
     private final MyPageService myPageService;
 
     /** ✅ 로그인 유저의 수강내역 전체 조회 */
-    @GetMapping("/enrollments")
+    @GetMapping("/enrollmentsTTTTTT")
     public List<MyPageCourseResponse> getMyEnrollments() {
         return myPageService.getMyEnrollments();
     }

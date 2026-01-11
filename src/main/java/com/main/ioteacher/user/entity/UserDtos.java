@@ -104,4 +104,28 @@ public class UserDtos {
         private String accessToken;
         private String tokenType;
     }
-}
+        /** ✅ 아이디 찾기 요청 DTO */
+        @Getter
+        @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class FindIdRequest {
+            @NotBlank
+            private String name;
+
+            @NotBlank
+            private String phoneNumber; // 프론트 입력값(하이픈 포함 가능)
+        }
+
+        /** ✅ 아이디 찾기 응답 DTO */
+        @Getter
+        @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class FindIdResponse {
+            // 프론트에서 이메일을 마스킹해도 되고,
+            // 백엔드에서 마스킹된 값을 같이 주면 UI 구현이 쉬움
+            private String email;        // 원본
+            private String maskedEmail;  // 마스킹
+        }
+    }

@@ -5,6 +5,7 @@ import com.main.ioteacher.config.JwtUtil;
 import com.main.ioteacher.user.Role;
 import com.main.ioteacher.user.UserStatus;
 import com.main.ioteacher.user.entity.User;
+import com.main.ioteacher.user.entity.UserDtos;
 import com.main.ioteacher.user.entity.UserDtos.CreateReq;
 import com.main.ioteacher.user.entity.UserDtos.LoginRequest;
 import com.main.ioteacher.user.entity.UserDtos.Resp;
@@ -236,4 +237,62 @@ public class AuthService {
     private String generateCode() {
         return String.format("%06d", new Random().nextInt(1000000));
     }
+
+    /** ✅ 아이디 찾기: 이름 + 전화번호로 이메일 반환 */
+    public UserDtos.FindIdResponse findId(UserDtos.FindIdRequest req) {
+        String name = safeTrim(req.getName());
+        String phone = normalizePhone(req.getPhoneNumber()); // 숫자만
+
+        if (name.isEmpty() || phone.isEmpty()) {
+            return new UserDtos.FindIdResponse(null, null);
+        }
+
+        User user = userRepository.findByNameAndPhone(name, phone)
+                .orElseThrow(() -> new IllegalArgumentException("일치하는 사용자를 찾을 수 없습니다."));
+
+        String email = user.getEmail();
+        return new UserDtos.FindIdResponse(email, maskEmail(email));
+    }
+
+    /** ✅ 전화번호 정규화: 숫자만 남김 (010-1234-5678 -> 01012345678) */
+    private String normalizePhone(String raw) {
+        if (raw == null) return "";
+        return raw.replaceAll("[^0-9]", "");
+    }
+
+    private String safeTrim(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    /** ✅ 이메일 마스킹 규칙 (프론트에서 그대로 보여주기 용도) */
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return email;
+
+        String[] parts = email.split("@", 2);
+        String local = parts[0];
+        String domainFull = parts[1];
+
+        // 도메인 분리 (gmail.com / naver.co.kr 등)
+        String[] domainParts = domainFull.split("\\.");
+        String domainName = domainParts.length > 0 ? domainParts[0] : domainFull;
+        String tld = domainParts.length > 1 ? "." + String.join(".", java.util.Arrays.copyOfRange(domainParts, 1, domainParts.length)) : "";
+
+        // local part 마스킹
+        String maskedLocal;
+        int len = local.length();
+        if (len <= 1) maskedLocal = "*";
+        else if (len == 2) maskedLocal = local.charAt(0) + "*";
+        else if (len <= 4) maskedLocal = local.substring(0, 2) + "*".repeat(Math.max(1, len - 2));
+        else maskedLocal = local.substring(0, 2) + "*".repeat(len - 3) + local.substring(len - 1);
+
+        // domainName 마스킹
+        String maskedDomain;
+        int dlen = domainName.length();
+        if (dlen <= 1) maskedDomain = "*";
+        else if (dlen == 2) maskedDomain = domainName.charAt(0) + "*";
+        else maskedDomain = domainName.charAt(0) + "*".repeat(dlen - 2) + domainName.substring(dlen - 1);
+
+        return maskedLocal + "@" + maskedDomain + tld;
+    }
+
 }
